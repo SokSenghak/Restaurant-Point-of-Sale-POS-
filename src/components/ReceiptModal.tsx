@@ -11,7 +11,8 @@ interface ReceiptModalProps {
 
 export default function ReceiptModal({ orderId, triggerButton }: ReceiptModalProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const { language } = usePOSStore();
+  const { language, systemSettings } = usePOSStore();
+  const currency = systemSettings?.currency || '€';
   
   const receipt = db.edgeFunctionGenerateReceipt(orderId);
 
@@ -141,7 +142,7 @@ export default function ReceiptModal({ orderId, triggerButton }: ReceiptModalPro
                         <div className="flex justify-between font-bold">
                           <span className="w-1/2 truncate font-bold text-zinc-800">{item.productName} ({item.size})</span>
                           <span className="w-1/6 text-center text-zinc-600">x{item.quantity}</span>
-                          <span className="w-1/3 text-right">€{(item.price * item.quantity).toFixed(2)}</span>
+                          <span className="w-1/3 text-right">{currency}{(item.price * item.quantity).toFixed(2)}</span>
                         </div>
                         {/* Selected optional toppings */}
                         {item.toppings && item.toppings.length > 0 && (
@@ -163,21 +164,21 @@ export default function ReceiptModal({ orderId, triggerButton }: ReceiptModalPro
                   <div className="text-[10px] space-y-1 block border-t border-dashed border-zinc-300 pt-3 mb-4">
                     <div className="flex justify-between">
                       <span>SUBTOTAL:</span>
-                      <span>€{receipt.subtotal.toFixed(2)}</span>
+                      <span>{currency}{receipt.subtotal.toFixed(2)}</span>
                     </div>
                     {receipt.discount > 0 && (
                       <div className="flex justify-between text-green-700">
                         <span>PROMO DISCOUNT:</span>
-                        <span>-€{receipt.discount.toFixed(2)}</span>
+                        <span>-{currency}{receipt.discount.toFixed(2)}</span>
                       </div>
                     )}
                     <div className="flex justify-between">
-                      <span>FLAT TAX (VAT 10%):</span>
-                      <span>€{receipt.tax.toFixed(2)}</span>
+                      <span>TAX (VAT {systemSettings?.taxPercent ?? 10}%):</span>
+                      <span>{currency}{receipt.tax.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-xs font-black border-t border-double border-zinc-400 pt-2.5">
                       <span>GRAND TOTAL:</span>
-                      <span>€{receipt.total.toFixed(2)}</span>
+                      <span>{currency}{receipt.total.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-[9px] text-zinc-500 pt-1">
                       <span>TENDER METHOD:</span>

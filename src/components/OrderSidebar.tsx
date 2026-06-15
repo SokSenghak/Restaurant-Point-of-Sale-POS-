@@ -21,8 +21,12 @@ export default function OrderSidebar({ onOpenCheckout }: OrderSidebarProps) {
     updateCartQty,
     discountPercent,
     discountAmount,
-    language
+    language,
+    systemSettings
   } = usePOSStore();
+
+  const currency = systemSettings?.currency || '€';
+  const taxRatePercent = systemSettings?.taxPercent ?? 10;
 
   const [showTableSelect, setShowTableSelect] = useState(false);
   const [showCustomerSelect, setShowCustomerSelect] = useState(false);
@@ -31,7 +35,7 @@ export default function OrderSidebar({ onOpenCheckout }: OrderSidebarProps) {
   const subtotal = cart.reduce((acc, item) => acc + (item.unitPrice * item.quantity), 0);
   const activeDiscountAmount = discountAmount || (subtotal * (discountPercent / 100));
   const remainingTotal = Math.max(0, subtotal - activeDiscountAmount);
-  const taxAmount = Number((remainingTotal * 0.1).toFixed(2));
+  const taxAmount = Number((remainingTotal * (taxRatePercent / 100)).toFixed(2));
   const grandTotal = Number((remainingTotal + taxAmount).toFixed(2));
 
   // Names helper
@@ -226,7 +230,7 @@ export default function OrderSidebar({ onOpenCheckout }: OrderSidebarProps) {
                       
                       {item.toppings.length > 0 && (
                         <p className="text-[9px] text-gray-500 leading-snug mt-1 font-semibold">
-                          + {item.toppings.map(t => `${t.name} (+€${t.price.toFixed(1)})`).join(', ')}
+                          + {item.toppings.map(t => `${t.name} (+${currency}${t.price.toFixed(1)})`).join(', ')}
                         </p>
                       )}
 
@@ -261,7 +265,7 @@ export default function OrderSidebar({ onOpenCheckout }: OrderSidebarProps) {
 
                       {/* Cost */}
                       <span className="text-[11px] font-black text-gray-800 dark:text-gray-200">
-                        €{(item.unitPrice * item.quantity).toFixed(2)}
+                        {currency}{(item.unitPrice * item.quantity).toFixed(2)}
                       </span>
                     </div>
 
@@ -283,7 +287,7 @@ export default function OrderSidebar({ onOpenCheckout }: OrderSidebarProps) {
         <div className="space-y-1 sm:space-y-1.5 pt-0.5 text-[11px] sm:text-xs">
           <div className="flex justify-between text-gray-500 dark:text-gray-400">
             <span>{language === 'en' ? 'Subtotal' : 'តម្លៃសរុប'}</span>
-            <span className="font-semibold text-gray-700 dark:text-gray-300">€{subtotal.toFixed(2)}</span>
+            <span className="font-semibold text-gray-700 dark:text-gray-300">{currency}{subtotal.toFixed(2)}</span>
           </div>
           
           {activeDiscountAmount > 0 && (
@@ -291,18 +295,18 @@ export default function OrderSidebar({ onOpenCheckout }: OrderSidebarProps) {
               <span className="flex items-center gap-1">
                 <Tag size={10} /> {language === 'en' ? 'Discount applied' : 'បញ្ចុះតម្លៃ'}
               </span>
-              <span className="font-extrabold">-€{activeDiscountAmount.toFixed(2)}</span>
+              <span className="font-extrabold">-{currency}{activeDiscountAmount.toFixed(2)}</span>
             </div>
           )}
 
           <div className="flex justify-between text-gray-500 dark:text-gray-400">
-            <span>{language === 'en' ? 'Flat Tax (VAT 10%)' : 'ពន្ធដារ (១០%)'}</span>
-            <span className="font-semibold text-gray-700 dark:text-gray-300">€{taxAmount.toFixed(2)}</span>
+            <span>{language === 'en' ? `Tax (VAT ${taxRatePercent}%)` : `ពន្ធដារ (${taxRatePercent}%)`}</span>
+            <span className="font-semibold text-gray-700 dark:text-gray-300">{currency}{taxAmount.toFixed(2)}</span>
           </div>
 
           <div className="flex justify-between text-gray-800 dark:text-gray-100 pt-1.5 border-t border-gray-150 dark:border-gray-850">
             <span className="font-black text-[10px] sm:text-xs uppercase tracking-wider">{language === 'en' ? 'Grand total' : 'រួមសរុប'}</span>
-            <span className="text-sm sm:text-base font-black text-primary">€{grandTotal.toFixed(2)}</span>
+            <span className="text-sm sm:text-base font-black text-primary">{currency}{grandTotal.toFixed(2)}</span>
           </div>
         </div>
 
@@ -325,7 +329,7 @@ export default function OrderSidebar({ onOpenCheckout }: OrderSidebarProps) {
           }`}
         >
           <ReceiptText size={13} />
-          {language === 'en' ? 'Proceed To Payment' : 'ទូទាត់ប្រាក់'} (€{grandTotal.toFixed(2)})
+          {language === 'en' ? 'Proceed To Payment' : 'ទូទាត់ប្រាក់'} ({currency}{grandTotal.toFixed(2)})
         </button>
 
       </div>

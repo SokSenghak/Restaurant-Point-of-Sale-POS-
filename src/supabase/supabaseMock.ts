@@ -1,5 +1,5 @@
 import { 
-  Category, Product, Topping, Table, TableStatus, Order, OrderItem, Coupon, Customer, User, OrderStatus, PaymentMethod 
+  Category, Product, Topping, Table, TableStatus, Order, OrderItem, Coupon, Customer, User, OrderStatus, PaymentMethod, SystemSettings
 } from '../types';
 
 // Let's define the local storage keys
@@ -16,7 +16,8 @@ const STORAGE_KEYS = {
   USERS: 'pos_users',
   CURRENT_USER_ID: 'pos_current_user_id',
   DARK_MODE: 'pos_dark_mode',
-  LANGUAGE: 'pos_lang'
+  LANGUAGE: 'pos_lang',
+  SYSTEM_SETTINGS: 'pos_system_settings'
 };
 
 // Seeding standard data helper
@@ -430,6 +431,7 @@ export class SupabaseLocalDatabase {
   currentUserId: string;
   darkMode: boolean;
   language: string;
+  systemSettings: SystemSettings;
 
   private watchers: (() => void)[] = [];
 
@@ -446,6 +448,17 @@ export class SupabaseLocalDatabase {
     this.currentUserId = getOrSeed(STORAGE_KEYS.CURRENT_USER_ID, 'user-admin');
     this.darkMode = getOrSeed(STORAGE_KEYS.DARK_MODE, false);
     this.language = getOrSeed(STORAGE_KEYS.LANGUAGE, 'en');
+    this.systemSettings = getOrSeed(STORAGE_KEYS.SYSTEM_SETTINGS, {
+      currency: '€',
+      fontSize: 'medium',
+      fontFamily: 'Inter',
+      taxPercent: 10,
+      pointsPerSpent: 1,
+      promoTitleEnglish: 'Capricciosa Pizza - 15% Off!',
+      promoTitleKhmer: 'ភីហ្សា Capricciosa បញ្ចុះតម្លៃ ១៥%!',
+      promoDescEnglish: 'Delicious artisanal classic loaded with ham, mushrooms, black olives, and premium mozzarella. Valid for all digital table-side checkouts today.',
+      promoDescKhmer: 'រសជាតិឆ្ងាញ់ពិតៗ ជាមួយគ្រឿងផ្សំពិសេសជាច្រើនមុខ។ ផ្តល់ជូនសម្រាប់ការបញ្ជាទិញនៅថ្ងៃនេះទាំងអស់។'
+    } as SystemSettings);
   }
 
   // Persists the current state
@@ -480,6 +493,15 @@ export class SupabaseLocalDatabase {
   setCurrentUser(userId: string) {
     this.currentUserId = userId;
     this.save('CURRENT_USER_ID', userId);
+  }
+
+  getSystemSettings(): SystemSettings {
+    return this.systemSettings;
+  }
+
+  saveSystemSettings(settings: SystemSettings) {
+    this.systemSettings = settings;
+    this.save('SYSTEM_SETTINGS', settings);
   }
 
   // --- CRUD OPERATIONS PARALLELING SUPABASE QUERIES ---
@@ -685,9 +707,10 @@ export class SupabaseLocalDatabase {
       }
     }
 
-    // Taxes (Flat 10% standard VAT on the discounted subtotal)
+    // Taxes based on systemSettings
+    const taxRate = (this.systemSettings.taxPercent ?? 10) / 100;
     const taxedAmount = Math.max(0, subtotal - discountAmount);
-    const taxValue = Number((taxedAmount * 0.1).toFixed(2));
+    const taxValue = Number((taxedAmount * taxRate).toFixed(2));
     const grandTotal = Number((taxedAmount + taxValue).toFixed(2));
 
     const newOrder: Order = {
@@ -705,12 +728,13 @@ export class SupabaseLocalDatabase {
       created_at: new Date().toISOString()
     };
 
-    // Loyalty point allocation (1 point per dollar spent) if customer ID exists
+    // Loyalty point allocation if customer ID exists
     if (params.customer_id) {
       const cIdx = this.customers.findIndex(c => c.id === params.customer_id);
       if (cIdx >= 0) {
         this.customers[cIdx].visits += 1;
-        this.customers[cIdx].points += Math.floor(grandTotal);
+        const multiplier = this.systemSettings.pointsPerSpent ?? 1;
+        this.customers[cIdx].points += Math.floor(grandTotal * multiplier);
         this.save('CUSTOMERS', this.customers);
       }
     }
@@ -765,7 +789,7 @@ export class SupabaseLocalDatabase {
         valid: true,
         discount_percent: Math.round((discountAmt / params.amount) * 100),
         discount_amount: Number(discountAmt.toFixed(2)),
-        message: `Success! €${coupon.value} discount applied.`
+        message: `Success! ${this.systemSettings.currency || '€'}${coupon.value} discount applied.`
       };
     }
   }

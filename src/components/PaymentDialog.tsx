@@ -12,7 +12,10 @@ interface PaymentDialogProps {
 }
 
 export default function PaymentDialog({ isOpen, onClose, onPaymentSuccess }: PaymentDialogProps) {
-  const { cart, createOrderAndPay, discountPercent, discountAmount, language } = usePOSStore();
+  const { cart, createOrderAndPay, discountPercent, discountAmount, language, systemSettings } = usePOSStore();
+  const currency = systemSettings?.currency || '€';
+  const taxRatePercent = systemSettings?.taxPercent ?? 10;
+
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('Cash');
   const [cashAmountInput, setCashAmountInput] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -24,7 +27,7 @@ export default function PaymentDialog({ isOpen, onClose, onPaymentSuccess }: Pay
   const subtotal = cart.reduce((acc, item) => acc + (item.unitPrice * item.quantity), 0);
   const activeDiscountAmount = discountAmount || (subtotal * (discountPercent / 100));
   const remainingTotal = Math.max(0, subtotal - activeDiscountAmount);
-  const taxAmount = Number((remainingTotal * 0.1).toFixed(2));
+  const taxAmount = Number((remainingTotal * (taxRatePercent / 100)).toFixed(2));
   const grandTotal = Number((remainingTotal + taxAmount).toFixed(2));
 
   const paymentMethods: { method: PaymentMethod; label: string; icon: string; logoColor: string }[] = [
@@ -152,7 +155,7 @@ export default function PaymentDialog({ isOpen, onClose, onPaymentSuccess }: Pay
                             type="number"
                             value={cashAmountInput}
                             onChange={(e) => setCashAmountInput(e.target.value)}
-                            placeholder={`€${grandTotal.toFixed(2)}`}
+                            placeholder={`${currency}${grandTotal.toFixed(2)}`}
                             className="flex-1 text-sm font-black px-3.5 py-2 rounded-xl bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-700 text-gray-800 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
                           />
                           <button
@@ -166,7 +169,7 @@ export default function PaymentDialog({ isOpen, onClose, onPaymentSuccess }: Pay
                         
                         <div className="flex justify-between items-center text-xs mt-3 pt-2.5 border-t border-dashed border-gray-200 dark:border-gray-750">
                           <span className="text-gray-400">Change Return Due:</span>
-                          <span className="font-black text-primary text-sm">€{changeDue.toFixed(2)}</span>
+                          <span className="font-black text-primary text-sm">{currency}{changeDue.toFixed(2)}</span>
                         </div>
                       </motion.div>
                     )}
@@ -205,24 +208,24 @@ export default function PaymentDialog({ isOpen, onClose, onPaymentSuccess }: Pay
                       <div className="space-y-2 text-xs">
                         <div className="flex justify-between text-gray-400">
                           <span>Items Subtotal:</span>
-                          <span className="font-bold text-gray-700 dark:text-gray-200">€{subtotal.toFixed(2)}</span>
+                          <span className="font-bold text-gray-700 dark:text-gray-200">{currency}{subtotal.toFixed(2)}</span>
                         </div>
 
                         {activeDiscountAmount > 0 && (
                           <div className="flex justify-between text-green-500 font-semibold">
                             <span>Total Discount:</span>
-                            <span>-€{activeDiscountAmount.toFixed(2)}</span>
+                            <span>-{currency}{activeDiscountAmount.toFixed(2)}</span>
                           </div>
                         )}
 
                         <div className="flex justify-between text-gray-400">
-                          <span>Flat VAT (10%):</span>
-                          <span className="font-bold text-gray-700 dark:text-gray-200">€{taxAmount.toFixed(2)}</span>
+                          <span>VAT ({taxRatePercent}%):</span>
+                          <span className="font-bold text-gray-700 dark:text-gray-200">{currency}{taxAmount.toFixed(2)}</span>
                         </div>
 
                         <div className="pt-2 border-t border-dashed border-gray-200 dark:border-gray-700 flex justify-between text-gray-800 dark:text-white">
                           <span className="font-bold">Total Payable:</span>
-                          <span className="text-lg font-black text-primary">€{grandTotal.toFixed(2)}</span>
+                          <span className="text-lg font-black text-primary">{currency}{grandTotal.toFixed(2)}</span>
                         </div>
                       </div>
                     </div>
@@ -285,11 +288,11 @@ export default function PaymentDialog({ isOpen, onClose, onPaymentSuccess }: Pay
                     </div>
                     <div className="flex justify-between text-gray-500 pt-1.5">
                       <span>Tax Collected:</span>
-                      <strong className="text-gray-800 dark:text-white">€{finalOrder.tax.toFixed(2)}</strong>
+                      <strong className="text-gray-800 dark:text-white">{currency}{finalOrder.tax.toFixed(2)}</strong>
                     </div>
                     <div className="flex justify-between text-gray-500 pt-1.5">
                       <span>Grand Total:</span>
-                      <strong className="text-primary text-sm font-black">€{finalOrder.total.toFixed(2)}</strong>
+                      <strong className="text-primary text-sm font-black">{currency}{finalOrder.total.toFixed(2)}</strong>
                     </div>
                   </div>
 

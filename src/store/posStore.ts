@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { db } from '../supabase/supabaseMock';
+import { injectGoogleFont } from '../utils/fonts';
 import { 
-  Category, Product, Topping, Table, Order, OrderItem, Coupon, Customer, User, UserRole, NotificationMsg, OrderStatus, PaymentMethod 
+  Category, Product, Topping, Table, Order, OrderItem, Coupon, Customer, User, UserRole, NotificationMsg, OrderStatus, PaymentMethod, SystemSettings
 } from '../types';
 
 export interface CartItem {
@@ -72,11 +73,16 @@ interface POSState {
   // Methods - Checkout execution
   createOrderAndPay: (paymentMethod: PaymentMethod) => { success: boolean; order: Order | null; error?: string };
   updateOrderStatusAndNotify: (orderId: string, status: OrderStatus) => void;
+
+  // System parameters
+  systemSettings: SystemSettings;
+  updateSystemSettings: (settings: SystemSettings) => void;
 }
 
 export const usePOSStore = create<POSState>((set, get) => {
   // Setup standard initial listener to sync multiple tabs if applicable
   db.subscribe(() => {
+    const settings = db.getSystemSettings();
     // Only refresh variables that can be modified concurrently
     set({
       categories: db.getCategories(),
@@ -86,8 +92,15 @@ export const usePOSStore = create<POSState>((set, get) => {
       orders: db.getOrders(),
       customers: db.getCustomers(),
       coupons: db.getCoupons(),
-      users: db.getUsers()
+      users: db.getUsers(),
+      systemSettings: settings
     });
+
+    if (settings) {
+      injectGoogleFont(settings.fontFamily);
+      const szMap = { small: '13px', medium: '15px', large: '17px', xl: '19px' };
+      document.documentElement.style.fontSize = szMap[settings.fontSize] || '15px';
+    }
   });
 
   return {
@@ -100,6 +113,7 @@ export const usePOSStore = create<POSState>((set, get) => {
     customers: db.getCustomers(),
     coupons: db.getCoupons(),
     users: db.getUsers(),
+    systemSettings: db.getSystemSettings(),
     
     currentTab: 'pos',
     searchQuery: '',
@@ -119,6 +133,7 @@ export const usePOSStore = create<POSState>((set, get) => {
     
     // Sync Action
     refreshFromDB: () => {
+      const settings = db.getSystemSettings();
       set({
         categories: db.getCategories(),
         products: db.getProducts(),
@@ -130,8 +145,15 @@ export const usePOSStore = create<POSState>((set, get) => {
         users: db.getUsers(),
         darkMode: db.darkMode,
         language: db.language as 'en' | 'kh',
-        currentUserId: db.currentUserId
+        currentUserId: db.currentUserId,
+        systemSettings: settings
       });
+
+      if (settings) {
+        injectGoogleFont(settings.fontFamily);
+        const szMap = { small: '13px', medium: '15px', large: '17px', xl: '19px' };
+        document.documentElement.style.fontSize = szMap[settings.fontSize] || '15px';
+      }
     },
     
     // Navigation & Filters
@@ -144,11 +166,13 @@ export const usePOSStore = create<POSState>((set, get) => {
       db.setDarkMode(target);
       set({ darkMode: target });
       
-      // Apply class on index.html element
+      // Apply class on index.html element and body
       if (target) {
         document.documentElement.classList.add('dark');
+        document.body.classList.add('dark');
       } else {
         document.documentElement.classList.remove('dark');
+        document.body.classList.remove('dark');
       }
     },
     
@@ -381,6 +405,22 @@ export const usePOSStore = create<POSState>((set, get) => {
       );
       
       get().refreshFromDB();
+    },
+
+    updateSystemSettings: (settings) => {
+      db.saveSystemSettings(settings);
+      set({ systemSettings: settings });
+
+      // apply fonts and sizes dynamically
+      injectGoogleFont(settings.fontFamily);
+      const szMap = { small: '13px', medium: '15px', large: '17px', xl: '19px' };
+      document.documentElement.style.fontSize = szMap[settings.fontSize] || '15px';
+
+      get().addNotification(
+        get().language === 'en' ? 'Settings Saved' : 'រក្សាទុកការកំណត់',
+        get().language === 'en' ? 'System configurations successfully updated.' : 'លក្ខណៈប្រព័ន្ធត្រូវបានធ្វើបច្ចុប្បន្នភាពដោយជោគជ័យ។',
+        'success'
+      );
     }
   };
 });

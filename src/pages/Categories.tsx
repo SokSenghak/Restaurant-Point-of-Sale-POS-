@@ -230,15 +230,15 @@ export default function Categories() {
                     onChange={(e) => setFormIcon(e.target.value)}
                     className="w-full text-xs font-semibold px-3 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-850 text-gray-800 dark:text-white focus:outline-none"
                   >
-                    <option value="🍕">🍕 Classic Pizza</option>
-                    <option value="🍟">🍟 Starters/Sides</option>
-                    <option value="🍰">🍰 Sweet Desserts</option>
-                    <option value="🥤">🥤 Cold Drinks</option>
-                    <option value="🥫">🥫 Canned Bev</option>
-                    <option value="🌶️">🌶️ Spicy/Extra</option>
-                    <option value="🍻">🍻 Craft Beer</option>
-                    <option value="🥐">🥐 Croissants</option>
-                    <option value="🥗">🥗 Green Salads</option>
+                    <option value="🍕" className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-150">🍕 Classic Pizza</option>
+                    <option value="🍟" className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-150">🍟 Starters/Sides</option>
+                    <option value="🍰" className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-150">🍰 Sweet Desserts</option>
+                    <option value="🥤" className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-150">🥤 Cold Drinks</option>
+                    <option value="🥫" className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-150">🥫 Canned Bev</option>
+                    <option value="🌶️" className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-150">🌶️ Spicy/Extra</option>
+                    <option value="🍻" className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-150">🍻 Craft Beer</option>
+                    <option value="🥐" className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-150">🥐 Croissants</option>
+                    <option value="🥗" className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-150">🥗 Green Salads</option>
                   </select>
                 </div>
                 <div>

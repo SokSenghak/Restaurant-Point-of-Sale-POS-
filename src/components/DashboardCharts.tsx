@@ -10,7 +10,8 @@ import {
 } from 'lucide-react';
 
 export default function DashboardCharts() {
-  const { darkMode, language } = usePOSStore();
+  const { darkMode, language, systemSettings } = usePOSStore();
+  const currency = systemSettings?.currency || '€';
   const stats = db.edgeFunctionDashboardStatistics();
 
   // Color theme selectors
@@ -60,21 +61,21 @@ export default function DashboardCharts() {
   const kpis = [
     {
       title: language === 'en' ? "Today's Revenue" : "សរុបលក់ថ្ងៃនេះ",
-      value: `€${stats.today_sales.toFixed(2)}`,
+      value: `${currency}${stats.today_sales.toFixed(2)}`,
       icon: <DollarSign size={20} />,
       color: 'bg-primary/5 text-primary',
       change: '+14.5% vs yesterday'
     },
     {
       title: language === 'en' ? 'Weekly Volume' : 'លក់ប្រចាំសប្តាហ៍',
-      value: `€${stats.weekly_sales.toFixed(2)}`,
+      value: `${currency}${stats.weekly_sales.toFixed(2)}`,
       icon: <TrendingUp size={20} />,
       color: 'bg-amber-500/5 text-amber-500',
       change: '+8.2% vs last week'
     },
     {
       title: language === 'en' ? 'Monthly Revenue' : 'លក់ប្រចាំខែ',
-      value: `€${stats.monthly_sales.toFixed(2)}`,
+      value: `${currency}${stats.monthly_sales.toFixed(2)}`,
       icon: <CreditCard size={20} />,
       color: 'bg-blue-500/5 text-blue-500',
       change: '+22.4% vs last month'
@@ -95,7 +96,7 @@ export default function DashboardCharts() {
     },
     {
       title: language === 'en' ? 'Average Order Value' : 'តម្លៃកម្ម៉ង់ជាមធ្យម',
-      value: `€${stats.average_order_value.toFixed(2)}`,
+      value: `${currency}${stats.average_order_value.toFixed(2)}`,
       icon: <Activity size={20} />,
       color: 'bg-indigo-500/5 text-indigo-500',
       change: 'Lifetime value'
@@ -139,7 +140,7 @@ export default function DashboardCharts() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h4 className="text-sm font-bold text-gray-800 dark:text-gray-150 uppercase tracking-wide leading-none">Weekly Revenue Pipeline</h4>
-              <p className="text-[11px] text-gray-400 mt-1">Summation of daily receipt checkouts (€)</p>
+              <p className="text-[11px] text-gray-400 mt-1">Summation of daily receipt checkouts ({currency})</p>
             </div>
             <span className="text-[10px] font-black text-primary bg-primary/5 px-2 py-0.5 rounded-lg uppercase tracking-wider">
               Real-time update

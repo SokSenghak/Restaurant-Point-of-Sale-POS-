@@ -10,7 +10,8 @@ interface ProductModalProps {
 }
 
 export default function ProductModal({ product, onClose }: ProductModalProps) {
-  const { toppings, addToCart, language } = usePOSStore();
+  const { toppings, addToCart, language, systemSettings } = usePOSStore();
+  const currency = systemSettings?.currency || '€';
   
   const [selectedSize, setSelectedSize] = useState<'Small' | 'Medium' | 'Large'>('Small');
   const [selectedToppings, setSelectedToppings] = useState<Topping[]>([]);
@@ -158,7 +159,7 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
                         }`}
                       >
                         <span className="text-xs font-bold leading-none">{sz}</span>
-                        <span className="text-xs font-black mt-1.5">€{cost.toFixed(2)}</span>
+                        <span className="text-xs font-black mt-1.5">{currency}{cost.toFixed(2)}</span>
                       </button>
                     );
                   })}
@@ -189,7 +190,7 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
                           <span className="text-sm bg-white dark:bg-gray-800 p-1 rounded-lg shadow-xs">{top.image}</span>
                           <div>
                             <p className="text-xs font-bold truncate leading-none">{top.name}</p>
-                            <p className="text-[10px] text-gray-500 font-semibold mt-1">+€{top.price.toFixed(2)}</p>
+                            <p className="text-[10px] text-gray-500 font-semibold mt-1">+{currency}{top.price.toFixed(2)}</p>
                           </div>
                         </div>
                         <div className={`h-4.5 w-4.5 rounded-full flex items-center justify-center border transition ${
@@ -249,7 +250,7 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
               >
                 <span>{language === 'en' ? 'Add To Cart' : 'បញ្ចូលទៅកន្ត្រក'}</span>
                 <span className="bg-white/15 px-3 py-1 rounded-xl text-xs font-black">
-                  €{totalCost.toFixed(2)}
+                  {currency}{totalCost.toFixed(2)}
                 </span>
               </motion.button>
 

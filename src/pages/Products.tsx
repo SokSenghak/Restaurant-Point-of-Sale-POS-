@@ -7,7 +7,8 @@ import {
 import { Product } from '../types';
 
 export default function Products() {
-  const { products, categories, refreshFromDB, language } = usePOSStore();
+  const { products, categories, refreshFromDB, language, systemSettings } = usePOSStore();
+  const currency = systemSettings?.currency || '€';
   
   // States
   const [searchTerm, setSearchTerm] = useState('');
@@ -156,7 +157,7 @@ export default function Products() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Lookup product by name..."
-                className="w-full text-xs font-semibold pl-8 px-3 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-850 text-gray-700 dark:text-white border border-transparent focus:border-primary focus:bg-white outline-none transition"
+                className="w-full text-xs font-semibold pl-8 px-3 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-850 text-gray-700 dark:text-white border border-transparent focus:border-primary focus:bg-white dark:focus:bg-gray-800 outline-none transition"
               />
             </div>
 
@@ -167,9 +168,9 @@ export default function Products() {
                 onChange={(e) => setSelectedCatFilter(e.target.value)}
                 className="text-xs font-semibold px-3 py-2 rounded-xl bg-gray-50 dark:bg-gray-850 border border-gray-150 dark:border-gray-800 text-gray-700 dark:text-white focus:outline-none"
               >
-                <option value="all">All Food Categories</option>
+                <option value="all" className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-150">All Food Categories</option>
                 {categories.map(c => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
+                  <option key={c.id} value={c.id} className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-150">{c.name}</option>
                 ))}
               </select>
             </div>
@@ -217,9 +218,9 @@ export default function Products() {
                       
                       {/* Price labels */}
                       <p className="text-[10px] text-gray-500 font-semibold mt-1">
-                        S: <strong className="text-gray-800 dark:text-gray-200">€{p.small_price.toFixed(1)}</strong> • 
-                        M: <strong className="text-gray-800 dark:text-gray-200"> €{p.medium_price.toFixed(1)}</strong> • 
-                        L: <strong className="text-primary font-bold"> €{p.large_price.toFixed(1)}</strong>
+                        S: <strong className="text-gray-800 dark:text-gray-200">{currency}{p.small_price.toFixed(1)}</strong> • 
+                        M: <strong className="text-gray-800 dark:text-gray-200"> {currency}{p.medium_price.toFixed(1)}</strong> • 
+                        L: <strong className="text-primary font-bold"> {currency}{p.large_price.toFixed(1)}</strong>
                       </p>
                     </div>
 
@@ -319,7 +320,7 @@ export default function Products() {
                     className="w-full text-xs font-semibold px-3 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-transparent text-gray-750 dark:text-white focus:outline-none"
                   >
                     {categories.map(c => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
+                      <option key={c.id} value={c.id} className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-150">{c.name}</option>
                     ))}
                   </select>
                 </div>
@@ -340,7 +341,7 @@ export default function Products() {
               {/* Size prices */}
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <label className="text-[10px] font-bold text-gray-400 block mb-1">Small Price (€)</label>
+                  <label className="text-[10px] font-bold text-gray-400 block mb-1">Small Price ({currency})</label>
                   <input
                     type="number"
                     step="0.01"
@@ -351,7 +352,7 @@ export default function Products() {
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold text-gray-400 block mb-1 font-display">Medium Price (€)</label>
+                  <label className="text-[10px] font-bold text-gray-400 block mb-1 font-display">Medium Price ({currency})</label>
                   <input
                     type="number"
                     step="0.01"
@@ -362,7 +363,7 @@ export default function Products() {
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold text-gray-400 block mb-1">Large Price (€)</label>
+                  <label className="text-[10px] font-bold text-gray-400 block mb-1">Large Price ({currency})</label>
                   <input
                     type="number"
                     step="0.01"

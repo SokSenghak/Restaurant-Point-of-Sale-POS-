@@ -8,7 +8,8 @@ import ReceiptModal from '../components/ReceiptModal';
 import { OrderStatus, Order, PaymentMethod } from '../types';
 
 export default function Orders() {
-  const { orders, tables, updateOrderStatusAndNotify, language } = usePOSStore();
+  const { orders, tables, updateOrderStatusAndNotify, language, systemSettings } = usePOSStore();
+  const currency = systemSettings?.currency || '€';
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
 
@@ -92,7 +93,7 @@ export default function Orders() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder={language === 'en' ? "Search order number..." : "ស្វែងរកលេខវិក្កយបត្រ..."}
-            className="w-full text-xs font-medium pl-8.5 pr-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800/80 text-gray-700 dark:text-white border border-transparent focus:border-primary focus:bg-white outline-none transition"
+            className="w-full text-xs font-medium pl-8.5 pr-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800/80 text-gray-700 dark:text-white border border-transparent focus:border-primary focus:bg-white dark:focus:bg-gray-750 outline-none transition"
           />
         </div>
 
@@ -170,7 +171,7 @@ export default function Orders() {
 
                       {/* Value total price */}
                       <td className="p-4 font-black text-gray-800 dark:text-white">
-                        €{o.total.toFixed(2)}
+                        {currency}{o.total.toFixed(2)}
                       </td>
 
                       {/* Payout method with visual icons */}

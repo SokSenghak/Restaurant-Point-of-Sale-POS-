@@ -24,7 +24,8 @@ export default function App() {
     darkMode, 
     language, 
     setLanguage, 
-    currentUserRole 
+    currentUserRole,
+    systemSettings
   } = usePOSStore();
 
   const [time, setTime] = useState(new Date());
@@ -35,14 +36,31 @@ export default function App() {
     return () => clearInterval(t);
   }, []);
 
-  // Update dark mode class on document element
+  // Update dark mode class on document element and body
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add('dark');
+      document.body.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
+      document.body.classList.remove('dark');
     }
   }, [darkMode]);
+
+  // Load selected fonts & font-sizes from custom settings
+  useEffect(() => {
+    if (systemSettings) {
+      import('./utils/fonts').then(({ injectGoogleFont }) => {
+        injectGoogleFont(systemSettings.fontFamily);
+      });
+      
+      const szMap = { small: '13px', medium: '15px', large: '17.5px', xl: '19.5px' };
+      document.documentElement.style.fontSize = szMap[systemSettings.fontSize] || '15px';
+      
+      // Apply global font-family dynamically
+      document.body.style.fontFamily = `"${systemSettings.fontFamily}", ui-sans-serif, system-ui, -apple-system, sans-serif`;
+    }
+  }, [systemSettings]);
 
   // Sidebar navigation options configuration mapping
   const navItems = [

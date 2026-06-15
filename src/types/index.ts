@@ -115,3 +115,16 @@ export interface NotificationMsg {
   type: 'info' | 'success' | 'warning';
   timestamp: Date;
 }
+
+export interface SystemSettings {
+  currency: string;
+  fontSize: 'small' | 'medium' | 'large' | 'xl';
+  fontFamily: string;
+  taxPercent: number;
+  pointsPerSpent: number;
+  promoTitleEnglish: string;
+  promoTitleKhmer: string;
+  promoDescEnglish: string;
+  promoDescKhmer: string;
+}
+

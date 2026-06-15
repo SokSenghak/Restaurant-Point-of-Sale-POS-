@@ -11,7 +11,8 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, onSelect }: ProductCardProps) {
-  const { language } = usePOSStore();
+  const { language, systemSettings } = usePOSStore();
+  const currency = systemSettings?.currency || '€';
   
   // Custom discount calculation for badge view
   const hasDiscount = product.discount_percent > 0;
@@ -91,11 +92,11 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
           <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Small</span>
           <div className="flex items-baseline gap-1">
             <span className="text-sm font-black text-gray-800 dark:text-gray-200">
-              €{discountedSmallPrice.toFixed(2)}
+              {currency}{discountedSmallPrice.toFixed(2)}
             </span>
             {hasDiscount && (
               <span className="text-[10px] text-gray-400 dark:text-gray-500 line-through">
-                €{originalSmallPrice.toFixed(2)}
+                {currency}{originalSmallPrice.toFixed(2)}
               </span>
             )}
           </div>
@@ -105,7 +106,7 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
         <div className="flex flex-col text-right">
           <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Large</span>
           <span className="text-sm font-black text-primary">
-            €{product.large_price.toFixed(2)}
+            {currency}{product.large_price.toFixed(2)}
           </span>
         </div>
 
