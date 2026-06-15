@@ -1,0 +1,6 @@
+{
+  "name": "Restaurant POS",
+  "description": "A premium, tablet-optimized restaurant Point of Sale (POS) and kitchen display system featuring order processing, tables management, live synchronization, and real-time dashboard analytics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
